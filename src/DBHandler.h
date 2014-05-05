@@ -11,14 +11,18 @@
 #include <Wt/Dbo/Dbo>
 #include <Wt/Dbo/backend/Sqlite3>
 #include "GWDataTypes/GWSensorData.h"
+#include "SensorNode.h"
 
 namespace RFSNGW {
+
+typedef dbo::collection< dbo::ptr<RFSNGW::SensorNode> > SNCollection;
 
 class DBHandler {
 public:
 	DBHandler();
 	virtual ~DBHandler();
 	void insertSensorData(GWSensorData* gwsd);
+	Wt::Dbo::ptr<SensorNode> insertNode( SensorNode* node);
 
 	Wt::Dbo::Transaction newTransaction();
 

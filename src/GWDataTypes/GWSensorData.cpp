@@ -4,24 +4,16 @@
 
 namespace RFSNGW {
 
-GWSensorData::GWSensorData(nRFTP::SensorData& src):
-	timestamp(boost::posix_time::second_clock::local_time()), type(src.sensorType), value(src.sensorData), source(src.header.srcAddress){
+GWSensorData::GWSensorData(nRFTP::SensorData& src, Wt::Dbo::ptr<SensorNode> node):
+	sensorNode(node),timestamp(boost::posix_time::second_clock::local_time()), type(src.sensorType), value(src.sensorData){
 }
 
 GWSensorData::GWSensorData() :
-	type(-1), value(0), source(0){
+	type(-1), value(0){
 
 }
 
 GWSensorData::~GWSensorData() {
-}
-
-int GWSensorData::getSource() const {
-	return source;
-}
-
-void GWSensorData::setSource(int source) {
-	this->source = source;
 }
 
 const boost::posix_time::ptime& GWSensorData::getTimestamp() const {
@@ -48,4 +40,9 @@ void GWSensorData::setValue(int value) {
 	this->value = value;
 }
 
+const Wt::Dbo::ptr<SensorNode>& RFSNGW::GWSensorData::getSensorNode() const {
+	return sensorNode;
+}
+
 } /* namespace RFSNGW */
+

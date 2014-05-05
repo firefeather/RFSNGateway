@@ -8,29 +8,30 @@
 
 namespace RFSNGW {
 
-RFEndPoint::RFEndPoint(uint8_t _cepin, uint8_t _cspin, RFSNGateway* gw):
-	physicalLayer(_cepin,_cspin),
-	transportProtocol(&physicalLayer,0),
-	gateway(gw){
+RFEndPoint::RFEndPoint(uint8_t _cepin, uint8_t _cspin, RFSNGateway* gw) :
+		physicalLayer(_cepin, _cspin), transportProtocol(&physicalLayer, 0), gateway(gw) {
 	transportProtocol.begin(this);
 
 }
 
-void RFEndPoint::handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isResponse){
+void RFEndPoint::handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isResponse) {
 
-	switch (type){
+	switch (type) {
 	case nRFTP::Message::TYPE_SENSORDATA:
 		nRFTP::SensorData sd(bb);
-		GWSensorData* gwsd = new GWSensorData(sd);
+		if (!gateway->isKnownNode(sd.header.srcAddress)) {
+			gateway->addNodeToDB((int)sd.header.srcAddress);
+		}
+		GWSensorData* gwsd = new GWSensorData(sd, gateway->getNode(sd.header.srcAddress));
 		gateway->sensorDataArrived(gwsd);
 		break;
 	}
 }
-void RFEndPoint::pingResponseArrived(uint16_t milis, uint16_t destAddress){
+void RFEndPoint::pingResponseArrived(uint16_t milis, uint16_t destAddress) {
 
 }
 
-void RFEndPoint::update(){
+void RFEndPoint::update() {
 	transportProtocol.run();
 }
 

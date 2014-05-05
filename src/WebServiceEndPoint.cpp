@@ -1,16 +1,17 @@
 #include "WebServiceEndPoint.h"
-#include "DBHandler.h"
-#include <Wt/Dbo/Dbo>
-#include <iostream>
+#include "RFSNGateway.h"
 #include <sstream>
-#include <boost/lexical_cast.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
+#include <map>
+
 
 namespace RFSNGW {
 
-WebServiceEndPoint::WebServiceEndPoint(DBHandler* dbh) :
-		dataBaseHandler(dbh) {
+WebServiceEndPoint::WebServiceEndPoint(DBHandler* dbh, RFSNGateway* gw) :
+		dataBaseHandler(dbh),
+		getSensorData(dataBaseHandler, gw),
+		getNode(dbh,gw),
+		listNodes(dbh, gw),
+		gateway(gw){
 }
 
 WebServiceEndPoint::~WebServiceEndPoint() {
@@ -18,7 +19,14 @@ WebServiceEndPoint::~WebServiceEndPoint() {
 
 void WebServiceEndPoint::start(unsigned int _port) {
 	m_httpServer = boost::make_shared<pion::http::server>(_port);
-	m_httpServer->add_resource("/node", boost::bind(&WebServiceEndPoint::requestHandler, this, _1, _2));
+
+	std::map<int, dbo::ptr<SensorNode> > nodes = gateway->getNodes();
+	std::map<int, dbo::ptr<SensorNode> >::iterator it;
+	for (it = nodes.begin(); it != nodes.end(); ++it){
+		addNodeResource((*it).second.get());
+	}
+	m_httpServer->add_resource("/listnodes", boost::bind(&ListNodes::requestHandler, &listNodes, _1, _2));
+
 	m_httpServer->start();
 }
 
@@ -28,69 +36,41 @@ void WebServiceEndPoint::stop() {
 	}
 }
 
-void WebServiceEndPoint::requestHandler(pion::http::request_ptr& httpRequest, pion::tcp::connection_ptr& tcpConn) {
-	pion::http::response_writer_ptr writer(pion::http::response_writer::create(tcpConn, *httpRequest, boost::bind(&pion::tcp::connection::finish, tcpConn)));
-	pion::http::response& r = writer->get_response();
+void WebServiceEndPoint::addNodeResource(const SensorNode* node){
+	std::stringstream resSDAddress;
+	std::stringstream resSDName;
+	std::stringstream resLastSDAddress;
+	std::stringstream resLastSDName;
+	std::stringstream resNodeName;
+	std::stringstream resNodeAddress;
+	resSDAddress << "/getsensordata/by-address/" << node->getAddress();
+	resSDName << "/getsensordata/by-name/" << node->getName();
+	resLastSDAddress << "/getlastsensordata/by-address/" << node->getAddress();
+	resLastSDName << "/getlastsensordata/by-name/" << node->getName();
+	resNodeAddress << "/getnode/by-address/" << node->getAddress();
+	resNodeName << "/getnode/by-name/" << node->getName();
 
-	pion::ihash_multimap& params = httpRequest->get_queries();
+	m_httpServer->add_resource(resSDAddress.str(), boost::bind(&GetSensorData::byAddress, &getSensorData, _1, _2, node->getAddress(), -1, false));
+	m_httpServer->add_resource(resSDName.str(), boost::bind(&GetSensorData::byName, &getSensorData, _1, _2, node->getName(), -1, false));
+	m_httpServer->add_resource(resNodeName.str(), boost::bind(&GetNode::byName, &getNode, _1, _2, node->getName()));
+	m_httpServer->add_resource(resNodeAddress.str(), boost::bind(&GetNode::byAddress, &getNode, _1, _2, node->getAddress()));
+	m_httpServer->add_resource(resLastSDAddress.str(), boost::bind(&GetSensorData::byAddress, &getSensorData, _1, _2, node->getAddress(), -1, true));
+	m_httpServer->add_resource(resLastSDName.str(), boost::bind(&GetSensorData::byAddress, &getSensorData, _1, _2, node->getAddress(), -1, true));
+	for (int i=0; i<3; i++){
+		std::stringstream resLastAddressWithType;
+		std::stringstream resLastNameWithType;
+		std::stringstream resAddressWithType;
+		std::stringstream resNameWithType;
+		resAddressWithType << "/getsensordata/by-address/"<<  node->getAddress() << "/" << i;
+		resNameWithType << "/getsensordata/by-name/"<<  node->getName() << "/" << i;
+		resLastAddressWithType << "/getlastsensordata/by-address/"<<  node->getAddress() << "/" << i;
+		resLastNameWithType << "/getlastsensordata/by-name/"<<  node->getName() << "/" << i;
+		m_httpServer->add_resource(resAddressWithType.str(), boost::bind(&GetSensorData::byAddress, &getSensorData, _1, _2,  node->getAddress(), i, false));
+		m_httpServer->add_resource(resNameWithType.str(), boost::bind(&GetSensorData::byName, &getSensorData, _1, _2,  node->getName(), i, false));
+		m_httpServer->add_resource(resLastAddressWithType.str(), boost::bind(&GetSensorData::byAddress, &getSensorData, _1, _2,  node->getAddress(), i, true));
+		m_httpServer->add_resource(resLastNameWithType.str(), boost::bind(&GetSensorData::byName, &getSensorData, _1, _2,  node->getName(), i, true));
 
-	pion::ihash_multimap::const_iterator paramIter = params.find("address");
-	if (paramIter != params.end()) {
-
-		int address = 0;
-		int sensorType = -1;
-		bool validParams = true;
-
-		try {
-			address = boost::lexical_cast<int>(paramIter->second);
-		} catch (boost::bad_lexical_cast const&) {
-			r.set_status_code(pion::http::types::RESPONSE_CODE_BAD_REQUEST);
-			r.set_status_message(pion::http::types::RESPONSE_MESSAGE_BAD_REQUEST);
-			writer->write("Wrong address ");
-			validParams = false;
-		}
-
-		pion::ihash_multimap::const_iterator sensorParamIter = params.find("sensortype");
-		if (sensorParamIter != params.end()) {
-			try {
-				sensorType = boost::lexical_cast<int>(sensorParamIter->second);
-			} catch (boost::bad_lexical_cast const&) {
-				r.set_status_code(pion::http::types::RESPONSE_CODE_BAD_REQUEST);
-				r.set_status_message(pion::http::types::RESPONSE_MESSAGE_BAD_REQUEST);
-				writer->write("Wrong sensor type");
-				validParams = false;
-			}
-		}
-
-		if (validParams) {
-			r.set_status_code(pion::http::types::RESPONSE_CODE_OK);
-			r.set_status_message(pion::http::types::RESPONSE_MESSAGE_OK);
-
-			dbo::Transaction t = dataBaseHandler->newTransaction();
-			SDCollection gwdatas;
-
-			if (sensorType >=0){
-				gwdatas = t.session().find<GWSensorData>().where("source = ? and type = ?").bind(address).bind(sensorType).orderBy("timestamp");
-			} else {
-				gwdatas = t.session().find<GWSensorData>().where("source = ?").bind(address).orderBy("type, timestamp");
-			}
-
-			boost::property_tree::ptree result;
-
-			for (SDCollection::const_iterator i = gwdatas.begin(); i != gwdatas.end(); ++i) {
-				result.put(paramIter->second + "." + to_simple_string((*i)->getTimestamp()) + "." + lexical_cast<std::string>((*i)->getType()), lexical_cast<std::string>((*i)->getValue()));
-			}
-
-			std::ostringstream buf;
-			boost::property_tree::write_json(buf, result, false);
-			writer->write(buf.str());
-		}
-	} else {
-		r.set_status_code(pion::http::types::RESPONSE_CODE_BAD_REQUEST);
-		r.set_status_message(pion::http::types::RESPONSE_MESSAGE_BAD_REQUEST);
 	}
-
-	writer->send();
 }
 
 }

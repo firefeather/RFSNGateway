@@ -7,6 +7,7 @@
 
 #include "DBHandler.h"
 #include <iostream>
+#include <unistd.h>
 
 using namespace std;
 
@@ -19,6 +20,7 @@ DBHandler::DBHandler() :
 
 	try {
 		session.mapClass<GWSensorData>("gwsensordata");
+		session.mapClass<SensorNode>("sensornode");
 		session.createTables();
 	} catch (...) {
 
@@ -32,8 +34,15 @@ DBHandler::~DBHandler() {
 void DBHandler::insertSensorData(GWSensorData* gwsd){
 	cout << "Arrived: " << gwsd->getValue() << endl;
 	Wt::Dbo::Transaction transaction(session);
-	Wt::Dbo::ptr<GWSensorData> userPtr = session.add(gwsd);
+	session.add(gwsd);
 	transaction.commit();
+}
+
+Wt::Dbo::ptr<SensorNode> DBHandler::insertNode(SensorNode* node){
+	Wt::Dbo::Transaction transaction(session);
+	Wt::Dbo::ptr<SensorNode> ptr = session.add(node);
+	transaction.commit();
+	return ptr;
 }
 
 Wt::Dbo::Transaction  DBHandler::newTransaction(){
