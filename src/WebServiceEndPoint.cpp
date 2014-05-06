@@ -36,6 +36,14 @@ void WebServiceEndPoint::stop() {
 	}
 }
 
+void WebServiceEndPoint::update() {
+
+}
+
+void WebServiceEndPoint::routingTableElementArrived(int srcAddress, nRFTP::RoutingTableElement rte){
+	getNode.routingTableElementArrived(srcAddress, rte);
+}
+
 void WebServiceEndPoint::addNodeResource(const SensorNode* node){
 	std::stringstream resSDAddress;
 	std::stringstream resSDName;
@@ -43,19 +51,27 @@ void WebServiceEndPoint::addNodeResource(const SensorNode* node){
 	std::stringstream resLastSDName;
 	std::stringstream resNodeName;
 	std::stringstream resNodeAddress;
+	std::stringstream resNodeRTName;
+	std::stringstream resNodeRTAddress;
 	resSDAddress << "/getsensordata/by-address/" << node->getAddress();
 	resSDName << "/getsensordata/by-name/" << node->getName();
 	resLastSDAddress << "/getlastsensordata/by-address/" << node->getAddress();
 	resLastSDName << "/getlastsensordata/by-name/" << node->getName();
 	resNodeAddress << "/getnode/by-address/" << node->getAddress();
 	resNodeName << "/getnode/by-name/" << node->getName();
+	resNodeRTAddress << "/getroutingtable/by-address/" << node->getAddress();
+	resNodeRTName << "/getroutingtable/by-name/" << node->getName();
 
 	m_httpServer->add_resource(resSDAddress.str(), boost::bind(&GetSensorData::byAddress, &getSensorData, _1, _2, node->getAddress(), -1, false));
 	m_httpServer->add_resource(resSDName.str(), boost::bind(&GetSensorData::byName, &getSensorData, _1, _2, node->getName(), -1, false));
-	m_httpServer->add_resource(resNodeName.str(), boost::bind(&GetNode::byName, &getNode, _1, _2, node->getName()));
-	m_httpServer->add_resource(resNodeAddress.str(), boost::bind(&GetNode::byAddress, &getNode, _1, _2, node->getAddress()));
 	m_httpServer->add_resource(resLastSDAddress.str(), boost::bind(&GetSensorData::byAddress, &getSensorData, _1, _2, node->getAddress(), -1, true));
 	m_httpServer->add_resource(resLastSDName.str(), boost::bind(&GetSensorData::byAddress, &getSensorData, _1, _2, node->getAddress(), -1, true));
+
+	m_httpServer->add_resource(resNodeName.str(), boost::bind(&GetNode::byName, &getNode, _1, _2, node->getName()));
+	m_httpServer->add_resource(resNodeAddress.str(), boost::bind(&GetNode::byAddress, &getNode, _1, _2, node->getAddress()));
+	m_httpServer->add_resource(resNodeRTName.str(), boost::bind(&GetNode::routingTableByName, &getNode, _1, _2, node->getName()));
+	m_httpServer->add_resource(resNodeRTAddress.str(), boost::bind(&GetNode::routingTableByAddress, &getNode, _1, _2, node->getAddress()));
+
 	for (int i=0; i<3; i++){
 		std::stringstream resLastAddressWithType;
 		std::stringstream resLastNameWithType;

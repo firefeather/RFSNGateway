@@ -97,8 +97,9 @@ void GetSensorData::requestHandler(pion::http::request_ptr& httpRequest, pion::t
 		boost::property_tree::ptree tmp;
 		std::stringstream typeStr;
 		typeStr << (*it).first;
-		//tmp.put(typeStr.str(), (*it).second);
-		result_list.push_back(std::make_pair(typeStr.str(), (*it).second));
+		tmp.put("type", typeStr.str());
+		tmp.add_child("values", (*it).second);
+		result_list.push_back(std::make_pair("", tmp));
 
 	}
 	result.add_child("sensordatas", result_list);

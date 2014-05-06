@@ -14,6 +14,10 @@ namespace dbo = Wt::Dbo;
 
 typedef dbo::collection< dbo::ptr<RFSNGW::SensorNode> > SNCollection;
 
+namespace nRFTP {
+	class RoutingTableElement;
+}
+
 namespace RFSNGW {
 
 class GWSensorData;
@@ -23,14 +27,20 @@ public:
 	RFSNGateway();
 	virtual ~RFSNGateway();
 
-	void run();
+	void run(int port);
+
 	void sensorDataArrived(GWSensorData* gwsd);
+	void routingTableElementArrived(nRFTP::RoutingTableElement& rte);
+
 	bool isKnownNode(int srcAddress);
 	void addNodeToDB(int address);
 	dbo::ptr<SensorNode> getNode(int address);
 	dbo::ptr<SensorNode> getNode(std::string name);
 	std::map<int, dbo::ptr<SensorNode> > getNodes();
 	LastValueCache& getLastValueCache();
+
+	RFEndPoint& getEndpointRf();
+	WebServiceEndPoint& getWebServiceEndPoint();
 
 private:
 	RFEndPoint endpointRF;

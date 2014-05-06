@@ -1,7 +1,7 @@
 #ifndef RFENDPOINT_H_
 #define RFENDPOINT_H_
 
-#include <SPI_PhysicalLayer.h>
+#include <SerialPhysicalLayer.h>
 #include <IMessageHandler.h>
 #include <nRFTransportProtocol.h>
 #include <stdint.h>
@@ -19,8 +19,10 @@ public:
     void pingResponseArrived(uint16_t milis, uint16_t destAddress);
     void update();
 
+    nRFTP::nRFTransportProtocol& getTransportProtocol();
+
 private:
-	nRFTP::SPI_PhysicalLayer physicalLayer;
+	nRFTP::Serial_PhysicalLayer physicalLayer;
 	nRFTP::nRFTransportProtocol transportProtocol;
 	RFSNGateway* gateway;
 

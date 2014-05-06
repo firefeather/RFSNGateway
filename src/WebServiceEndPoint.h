@@ -7,6 +7,9 @@
 #include "WebServices/GetNode.h"
 #include "WebServices/ListNodes.h"
 
+namespace nRFTP {
+	class RoutingTableElement;
+}
 
 namespace RFSNGW {
 
@@ -20,8 +23,11 @@ public:
 	virtual ~WebServiceEndPoint();
 
 	void start(unsigned int _port);
+	void update();
 	void stop();
 	void addNodeResource(const SensorNode* node);
+
+	void routingTableElementArrived(int stcAddress, nRFTP::RoutingTableElement rte);
 
 private:
 	pion::http::server_ptr m_httpServer;
@@ -30,6 +36,7 @@ private:
 	GetNode getNode;
     ListNodes listNodes;
 	RFSNGateway* gateway;
+
 
 };
 }
