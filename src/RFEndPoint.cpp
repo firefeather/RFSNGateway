@@ -11,7 +11,7 @@
 namespace RFSNGW {
 
 RFEndPoint::RFEndPoint(uint8_t _cepin, uint8_t _cspin, RFSNGateway* gw) :
-		physicalLayer("/dev/tty????"), transportProtocol(&physicalLayer, 0), gateway(gw) {
+		physicalLayer("/dev/ttyS2"), transportProtocol(&physicalLayer, 0), gateway(gw) {
 	transportProtocol.begin(this);
 
 }
