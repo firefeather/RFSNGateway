@@ -6,6 +6,7 @@
 #include "WebServices/GetSensorData.h"
 #include "WebServices/GetNode.h"
 #include "WebServices/ListNodes.h"
+#include "WebServices/MeasureSensorData.h"
 
 namespace nRFTP {
 	class RoutingTableElement;
@@ -35,6 +36,7 @@ private:
 	GetSensorData getSensorData;
 	GetNode getNode;
     ListNodes listNodes;
+    MeasureSensorData measureSensorData;
 	RFSNGateway* gateway;
 
 

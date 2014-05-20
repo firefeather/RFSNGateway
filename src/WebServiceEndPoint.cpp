@@ -11,6 +11,7 @@ WebServiceEndPoint::WebServiceEndPoint(DBHandler* dbh, RFSNGateway* gw) :
 		getSensorData(dataBaseHandler, gw),
 		getNode(dbh,gw),
 		listNodes(dbh, gw),
+		measureSensorData(dbh, gw),
 		gateway(gw){
 }
 
@@ -77,14 +78,20 @@ void WebServiceEndPoint::addNodeResource(const SensorNode* node){
 		std::stringstream resLastNameWithType;
 		std::stringstream resAddressWithType;
 		std::stringstream resNameWithType;
+		std::stringstream resMeasureSDByName;
+		std::stringstream resMeasureSDByAddress;
 		resAddressWithType << "/getsensordata/by-address/"<<  node->getAddress() << "/" << i;
 		resNameWithType << "/getsensordata/by-name/"<<  node->getName() << "/" << i;
 		resLastAddressWithType << "/getlastsensordata/by-address/"<<  node->getAddress() << "/" << i;
 		resLastNameWithType << "/getlastsensordata/by-name/"<<  node->getName() << "/" << i;
+		resMeasureSDByName << "/measuresensordata/by-name/" << node->getName() << "/" << i;
+		resMeasureSDByAddress<< "/measuresensordata/by-address/" << node->getAddress() << "/" << i;
 		m_httpServer->add_resource(resAddressWithType.str(), boost::bind(&GetSensorData::byAddress, &getSensorData, _1, _2,  node->getAddress(), i, false));
 		m_httpServer->add_resource(resNameWithType.str(), boost::bind(&GetSensorData::byName, &getSensorData, _1, _2,  node->getName(), i, false));
 		m_httpServer->add_resource(resLastAddressWithType.str(), boost::bind(&GetSensorData::byAddress, &getSensorData, _1, _2,  node->getAddress(), i, true));
 		m_httpServer->add_resource(resLastNameWithType.str(), boost::bind(&GetSensorData::byName, &getSensorData, _1, _2,  node->getName(), i, true));
+		m_httpServer->add_resource(resMeasureSDByName.str(), boost::bind(&MeasureSensorData::requestHandler, &measureSensorData, _1, _2,  node, i));
+		m_httpServer->add_resource(resMeasureSDByAddress.str(), boost::bind(&MeasureSensorData::requestHandler, &measureSensorData, _1, _2,  node, i));
 
 	}
 }
