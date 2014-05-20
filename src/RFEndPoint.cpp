@@ -1,5 +1,6 @@
 #include "RFEndPoint.h"
 #include <Message/Message.h>
+#include <Message/Header.h>
 #include <Message/SensorData.h>
 #include <Routing/RoutingTableElement.h>
 #include <Message/RoutingTableElementMessage.h>
@@ -17,14 +18,16 @@ RFEndPoint::RFEndPoint(uint8_t _cepin, uint8_t _cspin, RFSNGateway* gw) :
 }
 
 void RFEndPoint::handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isResponse) {
-	std::cout << "handleMessage" << std::endl;
+	nRFTP::Header header(bb);
+	if (!gateway->isKnownNode(header.srcAddress)) {
+		gateway->addNodeToDB((int)header.srcAddress);
+	}
+	bb.reset();
+
 	switch (type) {
 	case nRFTP::Message::TYPE_SENSORDATA:
 	{
 		nRFTP::SensorData sd(bb);
-		if (!gateway->isKnownNode(sd.header.srcAddress)) {
-			gateway->addNodeToDB((int)sd.header.srcAddress);
-		}
 		GWSensorData* gwsd = new GWSensorData(sd, gateway->getNode(sd.header.srcAddress));
 		gateway->sensorDataArrived(gwsd);
 		break;
