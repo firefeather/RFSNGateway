@@ -5,6 +5,7 @@
 #include <Routing/RoutingTableElement.h>
 #include <Message/RoutingTableElementMessage.h>
 #include <Util/Util.h>
+#include <Util/ByteBuffer.h>
 #include "GWDataTypes/GWSensorData.h"
 #include <iostream>
 #include "RFSNGateway.h"
