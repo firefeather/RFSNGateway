@@ -90,8 +90,8 @@ void WebServiceEndPoint::addNodeResource(const SensorNode* node){
 		m_httpServer->add_resource(resNameWithType.str(), boost::bind(&GetSensorData::byName, &getSensorData, _1, _2,  node->getName(), i, false));
 		m_httpServer->add_resource(resLastAddressWithType.str(), boost::bind(&GetSensorData::byAddress, &getSensorData, _1, _2,  node->getAddress(), i, true));
 		m_httpServer->add_resource(resLastNameWithType.str(), boost::bind(&GetSensorData::byName, &getSensorData, _1, _2,  node->getName(), i, true));
-		m_httpServer->add_resource(resMeasureSDByName.str(), boost::bind(&MeasureSensorData::requestHandler, &measureSensorData, _1, _2,  node, i));
-		m_httpServer->add_resource(resMeasureSDByAddress.str(), boost::bind(&MeasureSensorData::requestHandler, &measureSensorData, _1, _2,  node, i));
+		m_httpServer->add_resource(resMeasureSDByName.str(), boost::bind(&MeasureSensorData::requestHandler, &measureSensorData, _1, _2,  gateway->getNode(node->getAddress()), i));
+		m_httpServer->add_resource(resMeasureSDByAddress.str(), boost::bind(&MeasureSensorData::requestHandler, &measureSensorData, _1, _2,  gateway->getNode(node->getAddress()), i));
 
 	}
 }

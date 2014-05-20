@@ -19,6 +19,7 @@
 #include <boost/date_time/time_clock.hpp>
 #include <boost/date_time.hpp>
 #include <Message/Message.h>
+#include <Util/ByteBuffer.h>
 
 namespace RFSNGW {
 
@@ -30,7 +31,7 @@ MeasureSensorData::MeasureSensorData(DBHandler* dbh, RFSNGateway* gw) :
 MeasureSensorData::~MeasureSensorData() {
 }
 
-void MeasureSensorData::requestHandler(pion::http::request_ptr& httpRequest, pion::tcp::connection_ptr& tcpConn, SNptr snptr, int type){
+void MeasureSensorData::requestHandler(pion::http::request_ptr& httpRequest, pion::tcp::connection_ptr& tcpConn, const SNptr snptr, int type){
 	pion::http::response_writer_ptr writer(pion::http::response_writer::create(tcpConn, *httpRequest, boost::bind(&pion::tcp::connection::finish, tcpConn)));
 	pion::http::response& r = writer->get_response();
 
