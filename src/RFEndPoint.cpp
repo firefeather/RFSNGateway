@@ -17,7 +17,7 @@ RFEndPoint::RFEndPoint(uint8_t _cepin, uint8_t _cspin, RFSNGateway* gw) :
 }
 
 void RFEndPoint::handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isResponse) {
-
+	std::cout << "handleMessage" << std::endl;
 	switch (type) {
 	case nRFTP::Message::TYPE_SENSORDATA:
 	{
