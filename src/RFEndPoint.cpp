@@ -37,6 +37,9 @@ void RFEndPoint::handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isRespo
 	case nRFTP::Message::TYPE_ROUTING_TABLE:
 		if (isResponse){
 			nRFTP::RoutingTableElementMessage rtem(bb);
+			std::cout << "RFEndPoint::handleMessage/" << __LINE__ << ": rte arrived" << std::endl;
+			std::cout << "RFEndPoint::handleMessage/" << __LINE__ << ": dest: " << rtem.routingTableElement.destinationAddress << std::endl;
+			std::cout << "RFEndPoint::handleMessage/" << __LINE__ << ": next: " << rtem.routingTableElement.nextHop << std::endl;
 			gateway->getWebServiceEndPoint().routingTableElementArrived(rtem.header.srcAddress, rtem.routingTableElement);
 		}
 		break;
