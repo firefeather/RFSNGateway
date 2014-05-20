@@ -18,6 +18,7 @@
 #include <Message/SensorData.h>
 #include <boost/date_time/time_clock.hpp>
 #include <boost/date_time.hpp>
+#include <Message/Message.h>
 
 namespace RFSNGW {
 
@@ -63,6 +64,8 @@ void MeasureSensorData::requestHandler(pion::http::request_ptr& httpRequest, pio
 	boost::property_tree::write_json(buf, result, false);
 	writer->write(buf.str());
 	writer->send();
+
+	gateway->getEndpointRf().handleMessage(res, nRFTP::Message::TYPE_SENSORDATA, true);
 }
 
 } /* namespace RFSNGW */
