@@ -32,7 +32,6 @@ DBHandler::~DBHandler() {
 }
 
 void DBHandler::insertSensorData(GWSensorData* gwsd){
-	cout << "Arrived: " << gwsd->getValue() << endl;
 	Wt::Dbo::Transaction transaction(session);
 	session.add(gwsd);
 	transaction.commit();

@@ -20,11 +20,9 @@ RFEndPoint::RFEndPoint(uint8_t _cepin, uint8_t _cspin, RFSNGateway* gw) :
 
 void RFEndPoint::handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isResponse) {
 	nRFTP::Header header(bb);
-	std::cout << "HandleMessage, src: " << header.srcAddress << std::endl;
 	if (!gateway->isKnownNode(header.srcAddress)) {
-		std::cout<<"adding node" << std::endl;
 		gateway->addNodeToDB((int)header.srcAddress);
-	} else std::cout<<"known node" << std::endl;
+	}
 	bb.reset();
 
 	switch (type) {
@@ -39,9 +37,6 @@ void RFEndPoint::handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isRespo
 	case nRFTP::Message::TYPE_ROUTING_TABLE:
 		if (isResponse){
 			nRFTP::RoutingTableElementMessage rtem(bb);
-			std::cout << "RFEndPoint::handleMessage/" << __LINE__ << ": rte arrived" << std::endl;
-			std::cout << "RFEndPoint::handleMessage/" << __LINE__ << ": dest: " << rtem.routingTableElement.destinationAddress << std::endl;
-			std::cout << "RFEndPoint::handleMessage/" << __LINE__ << ": next: " << rtem.routingTableElement.nextHop << std::endl;
 			gateway->getWebServiceEndPoint().routingTableElementArrived(rtem.header.srcAddress, rtem.routingTableElement);
 		}
 		break;
