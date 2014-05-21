@@ -39,7 +39,7 @@ protected:
 	Wt::Dbo::ptr<SensorNode> sensorNode;
 	boost::posix_time::ptime timestamp;
 	int type;
-	int value;
+	float value;
 };
 
 } /* namespace RFSNGW */

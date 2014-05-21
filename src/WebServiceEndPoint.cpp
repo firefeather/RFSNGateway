@@ -73,7 +73,7 @@ void WebServiceEndPoint::addNodeResource(const SensorNode* node){
 	m_httpServer->add_resource(resNodeRTName.str(), boost::bind(&GetNode::routingTableByName, &getNode, _1, _2, node->getName()));
 	m_httpServer->add_resource(resNodeRTAddress.str(), boost::bind(&GetNode::routingTableByAddress, &getNode, _1, _2, node->getAddress()));
 
-	for (int i=0; i<3; i++){
+	for (int i=0; i<4; i++){
 		std::stringstream resLastAddressWithType;
 		std::stringstream resLastNameWithType;
 		std::stringstream resAddressWithType;
