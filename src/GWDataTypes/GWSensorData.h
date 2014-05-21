@@ -22,8 +22,8 @@ public:
 	void setTimestamp(const boost::posix_time::ptime& timestamp);
 	int getType() const;
 	void setType(int type);
-	int getValue() const;
-	void setValue(int value);
+	float getValue() const;
+	void setValue(float value);
 	const Wt::Dbo::ptr<SensorNode>& getSensorNode() const;
 
 	template<class Action>

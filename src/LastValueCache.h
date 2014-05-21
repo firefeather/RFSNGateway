@@ -22,7 +22,7 @@ class RFSNGateway;
 class DBHandler;
 class GWSensorData;
 
-typedef std::map<int, std::pair<boost::posix_time::ptime, int > > CacheEntryType;
+typedef std::map<int, std::pair<boost::posix_time::ptime, float > > CacheEntryType;
 typedef std::map<int, CacheEntryType > CacheType;
 
 class LastValueCache {

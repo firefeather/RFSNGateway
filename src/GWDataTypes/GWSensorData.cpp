@@ -32,11 +32,11 @@ void GWSensorData::setType(int type) {
 	this->type = type;
 }
 
-int GWSensorData::getValue() const {
+float GWSensorData::getValue() const {
 	return value;
 }
 
-void GWSensorData::setValue(int value) {
+void GWSensorData::setValue(float value) {
 	this->value = value;
 }
 
