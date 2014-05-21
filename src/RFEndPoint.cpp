@@ -20,9 +20,11 @@ RFEndPoint::RFEndPoint(uint8_t _cepin, uint8_t _cspin, RFSNGateway* gw) :
 
 void RFEndPoint::handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isResponse) {
 	nRFTP::Header header(bb);
+	std::cout << "HandleMessage, src: " << header.srcAddress << std::endl;
 	if (!gateway->isKnownNode(header.srcAddress)) {
+		std::cout<<"adding node" << std::endl;
 		gateway->addNodeToDB((int)header.srcAddress);
-	}
+	} else std::cout<<"known node" << std::endl;
 	bb.reset();
 
 	switch (type) {
