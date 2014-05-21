@@ -55,6 +55,7 @@ void MeasureSensorData::requestHandler(pion::http::request_ptr& httpRequest, pio
 		result.put("type", type);
 		result.put("timestamp", boost::posix_time::second_clock::local_time());
 		result.put("value", resultMessage.sensorData);
+		gateway->getEndpointRf().handleMessage(res, nRFTP::Message::TYPE_SENSORDATA, true);
 	} else {
 		result.put("timeout",1);
 	}
@@ -66,7 +67,6 @@ void MeasureSensorData::requestHandler(pion::http::request_ptr& httpRequest, pio
 	writer->write(buf.str());
 	writer->send();
 
-	gateway->getEndpointRf().handleMessage(res, nRFTP::Message::TYPE_SENSORDATA, true);
 }
 
 } /* namespace RFSNGW */
