@@ -51,10 +51,10 @@ void MeasureSensorData::requestHandler(pion::http::request_ptr& httpRequest, pio
 	if (res.data != NULL){
 		nRFTP::SensorData resultMessage(res);
 		res.reset();
-		result.put("address", snptr->getAddress());
-		result.put("type", type);
-		result.put("timestamp", boost::posix_time::second_clock::local_time());
-		result.put("value", resultMessage.sensorData);
+		result.put("measure.address", snptr->getAddress());
+		result.put("measure.type", type);
+		result.put("measure.timestamp", boost::posix_time::second_clock::local_time());
+		result.put("measure.value", resultMessage.sensorData);
 		gateway->getEndpointRf().handleMessage(res, nRFTP::Message::TYPE_SENSORDATA, true);
 	} else {
 		result.put("timeout",1);
